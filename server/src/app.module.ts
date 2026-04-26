@@ -2,6 +2,7 @@ import { Module } from "@nestjs/common";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { getDatabaseConfig } from "./database/database.config";
+import { StorageModule } from "./storage/storage.module";
 
 @Module({
   imports: [
@@ -16,7 +17,8 @@ import { getDatabaseConfig } from "./database/database.config";
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
       useFactory: getDatabaseConfig
-    })
+    }),
+    StorageModule
   ]
 })
 export class AppModule {}
