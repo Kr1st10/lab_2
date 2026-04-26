@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500">
+  <rect width="800" height="500" fill="#f6f1e8" />
+  <rect x="60" y="60" width="680" height="380" rx="24" fill="#ffffff" stroke="#d2c2ab" stroke-width="4" />
+  <circle cx="210" cy="180" r="64" fill="#d8aa73" />
+  <path d="M120 360L270 220L390 320L500 250L670 380H120Z" fill="#90a17d" />
+  <path d="M440 168C440 126 474 92 516 92C558 92 592 126 592 168C592 210 558 244 516 244C474 244 440 210 440 168Z" fill="#e7d6bf" />
+  <text x="400" y="430" text-anchor="middle" font-size="34" fill="#57463a" font-family="Trebuchet MS, sans-serif">
+    Sample image for FileViewerWidget
+  </text>
+</svg>
+
