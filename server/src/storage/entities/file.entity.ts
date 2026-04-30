@@ -36,7 +36,7 @@ export class FileEntity {
   @Column()
   path: string;
 
-  @Column({ type: "timestamp" })
+  @Column({ type: "timestamptz" })
   updatedAt: Date;
 
   @Column({ type: "text", nullable: true })

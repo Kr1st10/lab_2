@@ -14,6 +14,6 @@ export class TextFileChangeEntity {
   @Column({ type: "text" })
   newContent: string;
 
-  @Column({ type: "timestamp" })
+  @Column({ type: "timestamptz" })
   changedAt: Date;
 }
