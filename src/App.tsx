@@ -1,5 +1,6 @@
 import { Route, Routes } from "react-router-dom";
 import { Header } from "./components/Header";
+import { AdminPage } from "./pages/AdminPage";
 import { FilePage } from "./pages/FilePage";
 import { FolderPage } from "./pages/FolderPage";
 import { HomePage } from "./pages/HomePage";
@@ -14,6 +15,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/admin" element={<AdminPage />} />
           <Route path="/folders/:id" element={<FolderPage />} />
           <Route path="/files/:id" element={<FilePage />} />
           <Route path="*" element={<NotFoundPage />} />

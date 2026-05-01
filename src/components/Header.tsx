@@ -16,6 +16,9 @@ export function Header() {
         <Link to="/login" className="header-link">
           Вход
         </Link>
+        <Link to="/admin" className="header-link">
+          Админ-панель
+        </Link>
       </nav>
     </header>
   );

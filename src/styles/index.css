@@ -256,6 +256,28 @@ textarea {
   margin-top: 24px;
 }
 
+.admin-list {
+  display: grid;
+  gap: 16px;
+}
+
+.admin-change-card h2 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.admin-change-content {
+  margin: 14px 0 0;
+  padding: 14px;
+  max-height: 220px;
+  overflow: auto;
+  white-space: pre-wrap;
+  border: 1px solid #dbcab3;
+  border-radius: 12px;
+  background: #fffdfa;
+  color: #2f241d;
+}
+
 .viewer-frame,
 .viewer-image,
 .viewer-media {
