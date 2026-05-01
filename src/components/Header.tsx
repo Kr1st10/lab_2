@@ -9,10 +9,14 @@ export function Header() {
         </Link>
         <p className="app-subtitle">Л.Р. №1 на React + TypeScript</p>
       </div>
-      <Link to="/" className="header-link">
-        Корневая папка
-      </Link>
+      <nav className="header-nav">
+        <Link to="/" className="header-link">
+          Корневая папка
+        </Link>
+        <Link to="/login" className="header-link">
+          Вход
+        </Link>
+      </nav>
     </header>
   );
 }
-
