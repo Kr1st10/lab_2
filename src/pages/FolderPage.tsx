@@ -1,40 +1,12 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { getAllItems, getFolderById, getFolderContents } from "../api/storageApi";
+import { getFolderById, getFolderContents } from "../api/storageApi";
 import { ErrorMessage } from "../components/ErrorMessage";
 import { FileTypeFilter } from "../components/FileTypeFilter";
 import { ItemList } from "../components/ItemList";
 import { Loader } from "../components/Loader";
 import { SearchBar } from "../components/SearchBar";
-import {
-  getFileFilterCategory,
-  isFileItem,
-  type FileFilter,
-  type FolderItem,
-  type StorageItem
-} from "../types/storage";
-
-function sortItems(items: StorageItem[]) {
-  return [...items].sort((left, right) => {
-    if (left.kind !== right.kind) {
-      return left.kind === "folder" ? -1 : 1;
-    }
-
-    return left.name.localeCompare(right.name, "ru");
-  });
-}
-
-function filterItems(items: StorageItem[], searchValue: string, selectedType: FileFilter) {
-  const normalizedSearch = searchValue.trim().toLowerCase();
-
-  return items.filter((item) => {
-    const matchesName = item.name.toLowerCase().includes(normalizedSearch);
-    const matchesType =
-      selectedType === "all" ? true : isFileItem(item) && getFileFilterCategory(item.fileType) === selectedType;
-
-    return matchesName && matchesType;
-  });
-}
+import { type FileFilter, type FolderItem, type StorageItem } from "../types/storage";
 
 export function FolderPage() {
   const { id } = useParams();
@@ -42,7 +14,6 @@ export function FolderPage() {
   const folderId = Number(id);
   const [folder, setFolder] = useState<FolderItem | null>(null);
   const [items, setItems] = useState<StorageItem[]>([]);
-  const [allItems, setAllItems] = useState<StorageItem[]>([]);
   const [searchValue, setSearchValue] = useState("");
   const [selectedType, setSelectedType] = useState<FileFilter>("all");
   const [isLoading, setIsLoading] = useState(true);
@@ -59,14 +30,15 @@ export function FolderPage() {
     setError(null);
 
     try {
-      const [folderResponse, itemsResponse, allItemsResponse] = await Promise.all([
+      const [folderResponse, itemsResponse] = await Promise.all([
         getFolderById(folderId),
-        getFolderContents(folderId),
-        getAllItems()
+        getFolderContents(folderId, {
+          search: searchValue,
+          type: selectedType
+        })
       ]);
       setFolder(folderResponse);
-      setItems(sortItems(itemsResponse));
-      setAllItems(sortItems(allItemsResponse));
+      setItems(itemsResponse);
     } catch (loadError) {
       setError(loadError instanceof Error ? loadError.message : "Не удалось загрузить данные");
     } finally {
@@ -76,12 +48,9 @@ export function FolderPage() {
 
   useEffect(() => {
     void loadFolderData();
-  }, [folderId]);
+  }, [folderId, searchValue, selectedType]);
 
-  const isGlobalSearch = searchValue.trim() !== "" || selectedType !== "all";
-  const visibleItems = isGlobalSearch
-    ? filterItems(allItems, searchValue, selectedType)
-    : filterItems(items, searchValue, selectedType);
+  const isSearchOrFilterActive = searchValue.trim() !== "" || selectedType !== "all";
 
   return (
     <section className="page-card">
@@ -89,8 +58,8 @@ export function FolderPage() {
         <div>
           <h1>{folder?.name ?? "Страница папки"}</h1>
           <p>
-            {isGlobalSearch
-              ? "Показаны результаты поиска по всему хранилищу."
+            {isSearchOrFilterActive
+              ? "Показаны результаты поиска внутри этой папки."
               : "Подробная информация о папке и список вложенных объектов."}
           </p>
         </div>
@@ -123,9 +92,9 @@ export function FolderPage() {
             <p>
               <strong>Количество вложенных объектов:</strong> {items.length}
             </p>
-            {isGlobalSearch ? (
+            {isSearchOrFilterActive ? (
               <p>
-                <strong>Найдено по всему хранилищу:</strong> {visibleItems.length}
+                <strong>Найдено в папке:</strong> {items.length}
               </p>
             ) : null}
           </section>
@@ -135,7 +104,7 @@ export function FolderPage() {
             <FileTypeFilter value={selectedType} onChange={setSelectedType} />
           </div>
 
-          <ItemList items={visibleItems} emptyMessage="В этой папке ничего не найдено" />
+          <ItemList items={items} emptyMessage="В этой папке ничего не найдено" />
         </>
       ) : null}
     </section>

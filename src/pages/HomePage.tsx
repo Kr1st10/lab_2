@@ -1,41 +1,14 @@
 import { useEffect, useState } from "react";
-import { getAllItems } from "../api/storageApi";
+import { getItems } from "../api/storageApi";
 import { ErrorMessage } from "../components/ErrorMessage";
 import { FileTypeFilter } from "../components/FileTypeFilter";
 import { ItemList } from "../components/ItemList";
 import { Loader } from "../components/Loader";
 import { SearchBar } from "../components/SearchBar";
-import {
-  getFileFilterCategory,
-  isFileItem,
-  type FileFilter,
-  type StorageItem
-} from "../types/storage";
-
-function sortItems(items: StorageItem[]) {
-  return [...items].sort((left, right) => {
-    if (left.kind !== right.kind) {
-      return left.kind === "folder" ? -1 : 1;
-    }
-
-    return left.name.localeCompare(right.name, "ru");
-  });
-}
-
-function filterItems(items: StorageItem[], searchValue: string, selectedType: FileFilter) {
-  const normalizedSearch = searchValue.trim().toLowerCase();
-
-  return items.filter((item) => {
-    const matchesName = item.name.toLowerCase().includes(normalizedSearch);
-    const matchesType =
-      selectedType === "all" ? true : isFileItem(item) && getFileFilterCategory(item.fileType) === selectedType;
-
-    return matchesName && matchesType;
-  });
-}
+import { type FileFilter, type StorageItem } from "../types/storage";
 
 export function HomePage() {
-  const [allItems, setAllItems] = useState<StorageItem[]>([]);
+  const [items, setItems] = useState<StorageItem[]>([]);
   const [searchValue, setSearchValue] = useState("");
   const [selectedType, setSelectedType] = useState<FileFilter>("all");
   const [isLoading, setIsLoading] = useState(true);
@@ -46,8 +19,11 @@ export function HomePage() {
     setError(null);
 
     try {
-      const response = await getAllItems();
-      setAllItems(sortItems(response));
+      const response = await getItems({
+        search: searchValue,
+        type: selectedType
+      });
+      setItems(response);
     } catch (loadError) {
       setError(loadError instanceof Error ? loadError.message : "Не удалось загрузить данные");
     } finally {
@@ -57,13 +33,9 @@ export function HomePage() {
 
   useEffect(() => {
     void loadItems();
-  }, []);
+  }, [searchValue, selectedType]);
 
-  const rootItems = allItems.filter((item) => item.folderId == null);
   const isGlobalSearch = searchValue.trim() !== "" || selectedType !== "all";
-  const visibleItems = isGlobalSearch
-    ? filterItems(allItems, searchValue, selectedType)
-    : rootItems;
 
   return (
     <section className="page-card">
@@ -77,7 +49,7 @@ export function HomePage() {
           </p>
         </div>
         <div className="page-note">
-          {isGlobalSearch ? `Найдено: ${visibleItems.length}` : `Всего объектов: ${rootItems.length}`}
+          {isGlobalSearch ? `Найдено: ${items.length}` : `Всего объектов: ${items.length}`}
         </div>
       </div>
 
@@ -88,7 +60,7 @@ export function HomePage() {
 
       {isLoading ? <Loader /> : null}
       {error ? <ErrorMessage message={error} onRetry={() => void loadItems()} /> : null}
-      {!isLoading && !error ? <ItemList items={visibleItems} /> : null}
+      {!isLoading && !error ? <ItemList items={items} /> : null}
     </section>
   );
 }

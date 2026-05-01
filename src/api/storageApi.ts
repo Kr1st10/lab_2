@@ -1,4 +1,4 @@
-import type { FileItem, FolderItem, StorageItem } from "../types/storage";
+import type { FileFilter, FileItem, FolderItem, StorageItem } from "../types/storage";
 
 const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3001";
 
@@ -17,50 +17,50 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   return (await response.json()) as T;
 }
 
-async function getFolders(): Promise<FolderItem[]> {
-  return request<FolderItem[]>("/folders");
+type ItemsQuery = {
+  search?: string;
+  type?: FileFilter;
+};
+
+function createQueryString(query: ItemsQuery = {}): string {
+  const params = new URLSearchParams();
+  const search = query.search?.trim() ?? "";
+  const type = query.type ?? "all";
+
+  if (search !== "") {
+    params.set("search", search);
+  }
+
+  if (type !== "all") {
+    params.set("type", type);
+  }
+
+  const queryString = params.toString();
+
+  return queryString === "" ? "" : `?${queryString}`;
 }
 
-async function getFiles(): Promise<FileItem[]> {
-  return request<FileItem[]>("/files");
-}
-
-export async function getAllItems(): Promise<StorageItem[]> {
-  const [folders, files] = await Promise.all([getFolders(), getFiles()]);
-
-  return [...folders, ...files];
-}
-
-export async function getRootItems(): Promise<StorageItem[]> {
-  const items = await getAllItems();
-
-  return items.filter((item) => item.folderId == null);
+export async function getItems(query?: ItemsQuery): Promise<StorageItem[]> {
+  return request<StorageItem[]>(`/storage/items${createQueryString(query)}`);
 }
 
 export async function getFolderById(id: number): Promise<FolderItem> {
-  return request<FolderItem>(`/folders/${id}`);
+  return request<FolderItem>(`/storage/folders/${id}`);
 }
 
-export async function getFolderContents(folderId: number): Promise<StorageItem[]> {
-  const [folders, files] = await Promise.all([getFolders(), getFiles()]);
-
-  return [...folders.filter((folder) => folder.folderId === folderId), ...files.filter((file) => file.folderId === folderId)];
+export async function getFolderContents(folderId: number, query?: ItemsQuery): Promise<StorageItem[]> {
+  return request<StorageItem[]>(`/storage/folders/${folderId}/items${createQueryString(query)}`);
 }
 
 export async function getFileById(id: number): Promise<FileItem> {
-  return request<FileItem>(`/files/${id}`);
+  return request<FileItem>(`/storage/files/${id}`);
 }
 
 export async function updateTextFileContent(id: number, content: string): Promise<FileItem> {
-  const updatedAt = new Date().toISOString();
-  const size = new TextEncoder().encode(content).length;
-
-  return request<FileItem>(`/files/${id}`, {
+  return request<FileItem>(`/storage/files/${id}/content`, {
     method: "PATCH",
     body: JSON.stringify({
-      content,
-      updatedAt,
-      size
+      content
     })
   });
 }
