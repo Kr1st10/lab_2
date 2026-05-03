@@ -54,9 +54,9 @@ export function AdminPage() {
           <h1>Панель администратора</h1>
           <p>Здесь показаны сохраненные пользователями изменения текстовых файлов.</p>
         </div>
-        <Link to="/login" className="header-link">
+        {/* <Link to="/login" className="header-link">
           Вход
-        </Link>
+        </Link> */}
       </div>
 
       {isLoading ? <Loader /> : null}

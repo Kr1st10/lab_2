@@ -42,9 +42,9 @@ export class FileEntity {
   @Column({ type: "text", nullable: true })
   content: string | null;
 
-  @Column({ nullable: true })
+  @Column({ type: "varchar", nullable: true })
   url: string | null;
 
-  @Column({ nullable: true })
+  @Column({ type: "integer", nullable: true })
   folderId: number | null;
 }

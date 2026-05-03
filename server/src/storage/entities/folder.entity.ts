@@ -14,6 +14,6 @@ export class FolderEntity {
   @Column()
   path: string;
 
-  @Column({ nullable: true })
+  @Column({ type: "integer", nullable: true })
   folderId: number | null;
 }

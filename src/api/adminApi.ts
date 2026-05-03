@@ -11,7 +11,7 @@ export type TextFileChange = {
 export async function getTextFileChanges(token: string): Promise<TextFileChange[]> {
   const response = await fetch(`${API_URL}/admin/text-file-changes`, {
     headers: {
-      Authorization: `Bearer ${token}`
+      Authorization: `Bearer ${token}` // в заголовке, формата
     }
   });
 
